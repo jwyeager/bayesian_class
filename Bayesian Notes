@@ -1,0 +1,18 @@
+Bayesian Notes
+
+# Distribution function: p(x) = Prob(X=x)
+
+# Continuous: a probability distribution over a continuous range
+Cumulative distribution function: F(x) = Prob(X<=x)
+Expressed as probability densities rather than probabilities
+
+Binomial distribution: study with two possible outcomes
+	- success or failure
+3 seeds, 4 outcomes
+0 germ, 1 germ, 2 germ, 3 germ
+but could be 3 different success scenarios depending on what seed germinates
+
+Bernoulli
+Mean expected value = probability of success
+E(x^2) - p^2
+
