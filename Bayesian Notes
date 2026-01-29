@@ -16,3 +16,57 @@ Bernoulli
 Mean expected value = probability of success
 E(x^2) - p^2
 
+#######################
+## Poisson
+1 parameter; lambda
+mean = variance = lambda
+Number of events within a given time or within a given space
+Too constrained typically
+
+#######################
+## Negative Binomial
+More flexible
+# failures before a predetermined number of successes occurs
+range: x >= 0
+p(0 < p < 1) | probability per trial
+mu (real, positive) expected number of counts
+n (pos. integer) | # successes awaited [size]
+or k (real, pos.) | overdispersion parameter [size]
+(= shape parameter of underlying heterogeneity)
+
+mean | mu = n(1 - p) / p
+
+p = k / (k + mu)
+
+n = k 
+
+#######################
+## Geometric
+special case of Neg Binomial
+number of failures (with constant prob of failure) until you get the first success
+1 parameter: prob of succ
+dist. | p(1 - p)^x
+
+##########################################################################################
+                                    Continuous
+#######################
+## Uniform
+
+range | a =< x =< b
+dist  | 1 / (b - a)
+param | min (a), max (b), limits (real) [min, max]
+mean  | (a + b) / 2
+var   | (b - a)^2 / 12
+CV    | (b - a) / ((a + b) * sqrt(3))
+
+#######################
+## Normal
+
+range | all real values
+dist  | *see slides*
+param | mu (real), mean [mean]
+      | sigma (real), standard dev. [sd]
+mean  | mu
+var   | sigma^2
+CV    | sigma / mu
+
