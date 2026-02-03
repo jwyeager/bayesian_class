@@ -76,3 +76,17 @@ y <- dgeom(x, 0.2)
 barplot(y~x)
 y2 <- dgeom(x,0.8)
 barplot(y2~x)
+
+
+################################
+n <- 10
+p <- c(0.1,0.2,0.3)
+x <- seq(0,10)
+prob <- matrix(NA, 3, 11)
+
+for (i in 1:3) {
+  prob[i,] <- dbinom(x,n,p[i])
+}
+barplot(prob[1,] ~ x)
+barplot(prob[2,] ~ x)
+barplot(prob[3,] ~ x)
