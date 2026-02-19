@@ -1,0 +1,57 @@
+Lab 2 - Components of Bayes' Theorem
+
+Joel Yeager
+
+```{r}
+library(tidyverse)
+```
+
+**Problem**
+
+You will estimate the posterior distribution for the mean number of individuals of an invasive plant species per m2 in a disturbed grassland. We will call that mean θ. You have prior information telling you that the average number of these plants per m2 is 10.2 with a standard deviation of the mean = .5. You have a set of fifty observations in hand obtained by sweaty labor in the field. Execute the following steps.
+
+1.  Simulate 50 data points from a Poisson distribution with mean θ = 6.4 to represent the data set. What is the variance? Be sure to put the R function set.seed(3) before the call to rpois() to assure that we all get the same results. Call the data vector y.
+
+```{r}
+set.seed(3)
+
+y <- rpois(50, 6.4)
+```
+
+2.  Set values for the prior mean (mu.prior) and standard deviation (sigma.prior).
+
+```{r}
+mu.prior <- 10.2
+sigma.prior <- 0.5
+```
+
+3.  Set up a vector containing a sequence of values for θ, the mean number of invasive plants. You want this vector to approximate a continuous θ so be sure it contains values that are not too far apart. Use code like this: theta = seq(0,15,step) where you set step = .01. Setting a value for step with global scope is important. You will use it later when you integrate.
+
+```{r}
+theta <- seq(0, 15, by = 0.1)
+lik <- rep(NA, length(theta))
+
+for (i in 1:length(theta)){
+    lik[i] <- prod(dpois(y,theta[i]))
+}
+```
+
+***The prior distribution of*** θ
+
+4.  Write a function for the prior on θ. Use a gamma distribution for the prior. The function for the prior should return a vector of gamma probability densities, one for each value of θ. It should have arguments 1) the vector for θ you created in the previous step as well as 2) the prior mean and 3) the prior standard deviation. The mean and the standard deviation, of course, will need to be moment-matched to the proper parameters of the gamma distribution.
+
+```{r}
+alpha.prior <- (mu.prior^2) / (sigma.prior^2)
+beta.prior <- mu.prior / (sigma.prior^2)
+scale.1 <- 1 / beta.prior
+prior <- dgamma(theta, shape = alpha.prior, scale = scale.1)
+```
+
+5.  Plot the prior distribution of θ, the probability density of θ as a function of the values of θ.
+
+```{r}
+joint <- lik * prior
+```
+
+
+6.  Check your moment matching by generating 100,000 random variates from a gamma distribution with parameters matched to the prior mean and standard deviation. Now compute the mean and standard deviation of the random variates. They should be very close to 10.2 and .5.
