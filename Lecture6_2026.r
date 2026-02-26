@@ -33,9 +33,9 @@ rate1 <- 0.001
 
 prior <- dgamma(theta,shape=shape1, rate=rate1) 
 # You may consider gamma distribution for the prior distribution for theta 
-# as it is a positive continous random variable 
+# as it is a positive continuous random variable 
 
-#caluclate joint distribution
+#calculate joint distribution
 joint <- lik * prior
 
 #calculate [y] area under the joint distribution 

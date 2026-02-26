@@ -1,8 +1,12 @@
+---
+---
+---
+
 Lab 2 - Components of Bayes' Theorem
 
 Joel Yeager
 
-```{r}
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 library(tidyverse)
 ```
 
@@ -50,8 +54,75 @@ prior <- dgamma(theta, shape = alpha.prior, scale = scale.1)
 5.  Plot the prior distribution of θ, the probability density of θ as a function of the values of θ.
 
 ```{r}
-joint <- lik * prior
+jnt <- lik * prior
+plot(jnt)
 ```
 
-
 6.  Check your moment matching by generating 100,000 random variates from a gamma distribution with parameters matched to the prior mean and standard deviation. Now compute the mean and standard deviation of the random variates. They should be very close to 10.2 and .5.
+
+```{r}
+check.joint <- rgamma(100000, shape = alpha.prior, scale = scale.1)
+check.mu <- mean(check.joint)
+check.sd <- sd(check.joint)
+```
+
+***The liklihood***
+
+7.  Write a function for the likelihood. The function must use all 50 observations to compute the total likelihood across all of the data points (not the log likelihood) for each value of the vector θ. It should have arguments for the vector θ and the data. The function should create and return a vector with elements [y∣θi]. Note that this is the total probability density of all of the data for each value of θi, not the probability density of a single data point. In reality, θ is a continuous random variable, the mean of the Poisson distribution. We are discretizing it here into small intervals.
+
+```{r}
+liklihood <- function(data, para) {
+  lik <- rep(NA, length(para))
+  for (i in 1:length(para)){
+    lik[i] <- prod(dgamma(data, para[i]))
+  }
+  return (lik)
+}
+lik2 <- liklihood(y, theta)
+```
+
+8.  Plot the likelihood of the parameter value conditional on the data, L(θi∣y) as a function of θi.
+
+```{r}
+plot(lik2 ~ theta)
+```
+
+***The joint distribution***
+
+9.  Create a function for the joint distribution of the parameters and the data as the product of the prior and the likelihood functions. Call this function joint. The function should simply call the previous two functions and multiply them. Plot joint(theta) as a function of theta. Does this seem reasonable? Why are the values on the y axis so small? Think about what is going on here.
+
+```{r}
+joint <- function(x) {
+  result <- x * lik2
+  return(result)
+}
+plot(joint(theta) ~ theta)
+jnt.theta <- joint(theta)
+# seems reasonable as you they are joint liklihoods (multiplying one probability by another)
+```
+
+***The marginal probability of data***
+
+10. Approximate the integral of the likelihood multiplied by the prior to obtain a normalization constant [y]. How would you accomplish this integration?
+
+```{r}
+sum.joint <- sum((lik * prior) * 0.1)
+posterior <- ((lik * prior) / sum.joint)
+```
+
+***Putting it all together***
+
+11. Plot the prior, a histogram of the data, the likelihood, the joint, and the posterior in a six panel layout
+
+```{r}
+par(mfrow = c(2, 3), mar = c(4, 4, 2, 1))
+plot(theta, prior, type = "l", col = "blue",
+     main = "Prior", xlab = expression(theta), ylab = "")
+hist(y)
+plot(theta, lik, type = "l", col = "red",
+     main = "Likelihood", xlab = expression(theta), ylab = "")
+plot(theta, jnt, type = "l", col = "purple",
+     main = "Joint", xlab = expression(theta), ylab = "")
+plot(theta, posterior, type = "l", col = "black",
+     main = "Posterior", xlab = expression(theta), ylab = "")
+```
