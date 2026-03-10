@@ -41,12 +41,30 @@ bPrior <- 1
 
 (aPost <- aPrior + y)
 (bPost <- bPrior + n - y)
-post <- beta(39,63)
+
+phi <- seq(0, 1, length = 1000)
+
+prior <- dbeta(phi, aPrior, bPrior)
+post <- dbeta(phi, aPost, bPost)
 
 # A) Prior: uniform beta; Liklihood: binomial; Posterior: Beta-binomial
 
 # B) Plot posterior and prior:
+plot(phi, post, type="l", lwd=3, col="blue",
+     ylab="Density", xlab=expression(phi),
+     main="Prior vs Posterior Distribution")
+lines(phi, prior, lwd=3, col="red", lty=2)
+  # flat prior means no prior knowledge, posterior maxes around 0.38 like   observed data
 
+# C) 95% CI
+qbeta(c(0.025, 0.975), aPost, bPost)
+  #[1] 0.2909055 0.4781716
+
+# Probability of passing
+1 - pbeta(0.5, aPost, bPost)
+  # [1] 0.008252928, or roughly 1% chance
+
+# D) Because prior is uninformative, the posterior is driven predominately by the data. With 100 obs, the liklihood dominates prior, with a posterior centered near the observed proportion 38/100 = 0.38.
 ```
 
 2.  Lobster Catch!
@@ -54,7 +72,43 @@ post <- beta(39,63)
     A group of fishermen go lobster fishing for an hour. The fishermen catch 15, 8, 6, 11, and 4 lobsters. Estimate average catch, given that, prior to this fishing trip, we believed fishermen catch an average of 3 lobsters per hour (μ=3) an hour with a standard deviation of 1.5 lobsters per hour (σ=1.5).
 
 ```{r}
+y <- c(15, 8, 6, 11, 4)
+n <- length(y)
+sum.y <- sum(y)
 
+aPrior <- 4
+bPrior <- 1.333
+
+aPost <- aPrior + sum.y
+bPost <- bPrior + n
+
+lambda <- seq(0, 15, length = 1000)
+
+prior <- dgamma(lambda, aPrior, bPrior)
+post <- dgamma(lambda, aPost, bPost)
+
+# A) Prior: Lambda ∼ Gamma(4,1.333)
+#    Posterior: Lambda|y ∼ Gamma(48,6.333)
+
+# B) Plot:
+plot(lambda, post, type="l", lwd=3, col="blue",
+     xlab=expression(lambda),
+     ylab="Density",
+     main="Prior vs Posterior Distribution")
+
+lines(lambda, prior, col="red", lwd=3, lty=2)
+
+legend("topright",
+       legend=c("Posterior","Prior"),
+       col=c("blue","red"),
+       lwd=3,
+       lty=c(1,2))
+
+# C) 95% CI
+qgamma(c(0.025, 0.975), aPost, bPost)
+  #[1] 5.588412 9.868946
+
+# D) Prior suggested an average catch of 3 lobsters per hour, but the data show a higher average catch, so the posterior moved toward the data. Prior was moderately informative, but data dominated by the posterior
 ```
 
 3.  Solstice temperature
@@ -63,4 +117,28 @@ post <- beta(39,63)
 
 ```{r}
 temps <- read_csv('SolsticeTemp.csv')
+n <- 50
+sigma <- 15
+mu.prior <- 30
+sigma.prior <- 12
+
+(mu.temps <- mean(temps$temp))
+(sigma.post <- sqrt(1 / (1 / sigma.prior^2 + n/sigma^2)))
+(mu.post <- sigma.post^2 * (mu.prior / sigma.prior^2 + n * mu.temps/sigma^2))
+
+x <- seq(-30, 100, 0.1)
+prior <- dnorm(x, mean=mu.prior, sd=sigma.prior)
+post <- dnorm(x, mean=mu.post, sd=sigma.post)
+
+# B) Plot
+plot(x, post, type = 'l')
+lines(x, prior, col = 'red')
+
+  # Prior curve (red) is earlier estimates centered around 30 but is flatter given the relatively large st. deviation, while posterior (black) is still centered around 30, it is much narrower with a st. deviation of 2.088 and thus appears more like a sharp peak. Thus more information resulted in a better estimate of the mean temperature.
+
+# C) 95% CI
+qnorm(c(0.025,0.975), mu.post, sigma.post)
+  #[1] 26.65338 34.84185
+
+#D) Prior was only somewhat informative given its much larger st. deviation, however, the prior mean and sample mean are very close, indicating that the data provided more information that allowed for a stronger estimate of mean temperature than the prior despite the estimates functionally being in alignment.
 ```
