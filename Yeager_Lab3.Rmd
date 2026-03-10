@@ -35,6 +35,17 @@ For each scenario below:
 ```{r}
 y <- 38
 n <- 100
+aPrior <- 1
+bPrior <- 1
+
+
+(aPost <- aPrior + y)
+(bPost <- bPrior + n - y)
+post <- beta(39,63)
+
+# A) Prior: uniform beta; Liklihood: binomial; Posterior: Beta-binomial
+
+# B) Plot posterior and prior:
 
 ```
 
