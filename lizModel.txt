@@ -1,0 +1,13 @@
+model {
+  #priors
+  a  <-  dunif(-2, 10)
+  b  <-  dunif(-2, 2)
+  #likelihood
+  for (i in 1:19) {
+    logit(p[i]) <- a + b * PARratio[i]
+    presence[i] ~ dbern(p[i])
+  }
+  logit(p10) <- a + b * (10)
+  logit(p20) <- a + b * (20)
+  differ <- p10-p20
+}

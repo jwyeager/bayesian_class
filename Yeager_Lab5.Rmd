@@ -1,0 +1,68 @@
+---
+title: "Yeager_Lab_05"
+author: "Joel Yeager"
+date: "2026-04-01"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(R2OpenBUGS)
+BUGS.path <- "C:/Users/w10185792/Documents/WinBUGS14/WinBUGS14.exe"
+```
+
+## Lab 5
+
+We are going to work on the problem of lizards on islands, courtesy of McCarthy (2007). Polis et al. (1998) analyzed the probability of occupancy of islands (p) by lizards as a function of the ratio of the islands’ perimeter to area ratio. The data from this investigation are available in the data “data2.txt”. The response data, as you will see, are 0-1, 0 if there were no lizards found on the island, 1 if there were 1 or more lizards observed. You are assuming that if you fail to find a lizard, none are present on the island.
+
+1.  You construct a simple Bayesian model that represents the probability of occupancy as logit(p~i~)=a+bx~i~ where x~i~ is the perimeter to area ratio of the ith island. So, now that you have the deterministic model, the challenge is to choose the proper likelihood to link the data to the model. How do the data arise? What likelihood function is needed to represent the data?
+    -   Data only indicate presence (*y~i~* = 1) or absence (*y~i~* = 0) of lizards, thus the correct likelihood function would be *y~i~* \~ Bernoulli (*p~i~*).
+2.  Write out the expression for the posterior and joint distribution of the parameters and data. Use the joint distribution as a basis for BUGS code needed to estimate the posterior distribution of a and b. You may assume vague priors. Think about what these should be.
+    -   Posterior: P(*a,b* \| y,x) = P(y \| *a,b*,x)P(*a*)P(*b*) / P(y \| x)
+    -   Joint: P(y*,a,b* \| x) = P(y \| *a,b*,x) \* P(*a*) \* P(*b*)
+
+```{r}
+# Data
+presence <- c( 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1)
+PARratio <- c( 15.41, 5.63, 25.92, 15.17, 13.04, 18.85, 30.95, 22.87, 12.01, 11.6, 6.09, 2.28, 4.05, 59.94, 63.16, 22.76, 23.54, 0.21, 2.55)
+N <- length(presence)
+
+d <- list('presence', 'PARratio', 'N')
+
+# Model
+lizard.model <- function() {
+  #likelihood
+  for (i in 1:19) {
+    logit(p[i]) <- a + b * PARratio[i]
+    presence[i] ~ dbern(p[i])
+  }
+  logit(p10) <- a + b * (10)
+  logit(p20) <- a + b * (20)
+  differ <- p10-p20
+  #priors
+  a  <-  dunif(-2, 10)
+  b  <-  dunif(-2, 2)
+}
+
+write.model(lizard.model, con = 'lizard.txt', digits = 5)
+
+# Initial values
+inits <- function() {
+  list(
+    a = runif(1, -2, 10),
+    b = runif(1, -0.05, 0.05)
+  )
+}
+
+# Monitor
+params <- c("a", "b", "p10", "p20", "differ")
+
+# MCMC
+lizard.sim10 <- bugs(d, inits, params, n.iter = 10, 
+                   model.file = "lizard.txt", 
+                   n.chains = 3, OpenBUGS.pgm = BUGS.path,
+                   debug = TRUE)
+
+print(lizard.sim10)
+```
